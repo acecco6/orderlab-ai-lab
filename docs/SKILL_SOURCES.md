@@ -1,0 +1,13 @@
+# Fuentes de las skills de OrderLab
+
+Revisión: 2026-11-24. Referencia: `coollabsio/coolify`, commit [`fca179da601691b1131775b9f008e63ca4d5c1d1`](https://github.com/coollabsio/coolify/tree/fca179da601691b1131775b9f008e63ca4d5c1d1/.claude/skills), carpetas `laravel-best-practices`, `testing-best-practices` e `infer-conventions`. Sus `SKILL.md` y reglas temáticas se revisaron como referencia. Los archivos de origen declaran licencia MIT; las skills locales son una adaptación original y conservan atribución y licencia MIT.
+
+## Comparación y decisiones
+
+| Fuente            | Conservado y adaptado                                                                                                                                       | Descartado o diferido                                                                                                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Laravel           | Consistencia con archivos vecinos; Eloquent con eager loading; Form Requests, autorización, migraciones, transacciones, jobs idempotentes y caché derivada. | `search-docs` como comando obligatorio, paquetes opcionales, ejemplos Blade predominantes y funciones específicas sin uso en OrderLab. Verificar API con Laravel 13 instalado.                |
+| Testing           | Contratos observables, casos negativos, aislamiento, fakes con aserciones y revisión del valor del test.                                                    | Reglas rígidas de un test por cada declaración, `LazilyRefreshDatabase` universal y browser tests sin plugin instalado. Mantener Pest y `RefreshDatabase` actuales hasta medir una necesidad. |
+| Infer conventions | Evidencia antes de declarar un patrón; registrar decisiones útiles y no defaults del framework.                                                             | Su sweep de ~49 dimensiones, `.ai/rules`, `record-rule` y umbral fijo de ejemplos: el proyecto aún es un starter y estas convenciones se establecen gradualmente.                             |
+
+Las reglas locales en `rules/` son resúmenes específicos de OrderLab, no copias íntegramente trasladadas de Coolify. Las restricciones de MySQL externo, módulos de negocio y autorización humana proceden del documento maestro y del propietario. Para APIs de framework se consulta la documentación de Laravel 13 o el código instalado.

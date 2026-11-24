@@ -1,0 +1,93 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: infra/docker/Dockerfile
+            target: php
+        env_file: .env
+        environment:
+            DB_CONNECTION: mysql
+            DB_URL: ''
+            DB_HOST: ${DOCKER_DB_HOST:-host.docker.internal}
+            DB_DATABASE: ${DB_DATABASE:-orderlab_dev}
+            DB_USERNAME: ${DB_USERNAME:-orderlab_app}
+            DB_PASSWORD: ${DB_PASSWORD:-}
+            REDIS_HOST: redis
+            CACHE_STORE: redis
+            QUEUE_CONNECTION: redis
+        extra_hosts:
+            - host.docker.internal:host-gateway
+        volumes:
+            - app-storage:/var/www/html/storage
+        depends_on:
+            redis:
+                condition: service_healthy
+        healthcheck:
+            test: ['CMD', 'php', '-v']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+
+    web:
+        build:
+            context: .
+            dockerfile: infra/docker/Dockerfile
+            target: web
+        ports:
+            - '${WEB_PORT:-8080}:80'
+        depends_on:
+            app:
+                condition: service_healthy
+        healthcheck:
+            test:
+                ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1/up']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+
+    redis:
+        image: redis:7.4-alpine
+        command: ['redis-server', '--appendonly', 'no']
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 3s
+            retries: 3
+
+    worker:
+        profiles: ['workers']
+        build:
+            context: .
+            dockerfile: infra/docker/Dockerfile
+            target: php
+        env_file: .env
+        environment:
+            DB_CONNECTION: mysql
+            DB_URL: ''
+            DB_HOST: ${DOCKER_DB_HOST:-host.docker.internal}
+            DB_DATABASE: ${DB_DATABASE:-orderlab_dev}
+            DB_USERNAME: ${DB_USERNAME:-orderlab_app}
+            DB_PASSWORD: ${DB_PASSWORD:-}
+            REDIS_HOST: redis
+            CACHE_STORE: redis
+            QUEUE_CONNECTION: redis
+        extra_hosts:
+            - host.docker.internal:host-gateway
+        command:
+            [
+                'php',
+                'artisan',
+                'queue:work',
+                'redis',
+                '--sleep=3',
+                '--tries=3',
+                '--timeout=60',
+            ]
+        volumes:
+            - app-storage:/var/www/html/storage
+        depends_on:
+            redis:
+                condition: service_healthy
+
+volumes:
+    app-storage:
