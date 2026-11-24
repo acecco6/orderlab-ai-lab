@@ -22,11 +22,13 @@ if ($value('APP_ENV') !== 'testing'
     || $value('DB_CONNECTION') !== 'mysql'
     || $value('DB_DATABASE') !== 'orderlab_test'
     || $value('DB_USERNAME') === ''
+    || strtolower($value('DB_USERNAME')) === 'root'
+    || $value('DB_PASSWORD') === ''
     || $value('DB_HOST') === ''
     || $value('DB_DATABASE') === ($dev['DB_DATABASE'] ?? null)
     || $value('DB_USERNAME') === ($dev['DB_USERNAME'] ?? null)
     || $value('DB_URL') !== '') {
-    fwrite(STDERR, "Destino MySQL de pruebas no aislado o incompleto.\n");
+    fwrite(STDERR, "Destino MySQL de pruebas no aislado o incompleto; se requiere usuario exclusivo y contraseña.\n");
     exit(1);
 }
 

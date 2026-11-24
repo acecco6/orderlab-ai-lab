@@ -26,9 +26,8 @@ lint:
 test:
 	php artisan test
 
-# RefreshDatabase migrará el esquema de testing. Requiere autorización explícita.
+# El esquema orderlab_test debe existir y tener migraciones aplicadas por separado.
 test-mysql:
-	@test "$(ALLOW_TEST_MIGRATIONS)" = "1" || (echo "Definir ALLOW_TEST_MIGRATIONS=1 tras autorizar migraciones en orderlab_test"; exit 1)
 	php scripts/check-test-target.php
 	php vendor/bin/pest --configuration=phpunit.mysql.xml
 

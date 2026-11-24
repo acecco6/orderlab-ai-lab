@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,9 +15,17 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
-    ->in('Feature');
+if (($_ENV['ORDERLAB_MYSQL_TESTS'] ?? getenv('ORDERLAB_MYSQL_TESTS')) === '1') {
+    require dirname(__DIR__).'/scripts/check-test-target.php';
+
+    pest()->extend(TestCase::class)
+        ->use(DatabaseTransactions::class)
+        ->in('Feature');
+} else {
+    pest()->extend(TestCase::class)
+        ->use(RefreshDatabase::class)
+        ->in('Feature');
+}
 
 /*
 |--------------------------------------------------------------------------
